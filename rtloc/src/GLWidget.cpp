@@ -7,29 +7,40 @@
 
 #include "inc/GLWidget.h"
 #include <QColorDialog>
+#include <QTextStream>
 
-GLWidget::GLWidget(QWidget *parent)
-    : QGLWidget(parent)
+
+GLWidget::GLWidget(QWidget *parent) : QGLWidget(parent)
 {
+	QTextStream out(stdout);
+		out << "\nGLWidget start working\n";
     setFormat(QGLFormat(QGL::DoubleBuffer | QGL::DepthBuffer));
-    rotationX = 50;
-    rotationY = 50;
+    rotationX = 0;
+    rotationY = 0;
     rotationZ = 0;
-    faceColors[0] = Qt::red;
-    faceColors[1] = Qt::green;
-    faceColors[2] = Qt::blue;
-    faceColors[3] = Qt::cyan;
-    faceColors[4] = Qt::yellow;
-    faceColors[5] = Qt::magenta;
+
+    points.clear();
+
+    translationX = 0;
+    translationY = 0;
+
+    timer = new QTimer(this);
+    connect(timer, SIGNAL(timeout()), this, SLOT(UpdateTimer()));
+    timer->start(100);
+    //faceColors[0] = Qt::red;
 }
 
 GLWidget::~GLWidget()
 {
+	QTextStream out(stdout);
+			out << "\nGLWidget stop working\n";
+	delete timer;
+	points.clear();
 }
 
 QSize GLWidget::minimumSizeHint() const
  {
-     return QSize(50, 50);
+     return QSize(100, 100);
  }
 
  QSize GLWidget::sizeHint() const
@@ -48,11 +59,22 @@ void GLWidget::initializeGL()
 void GLWidget::resizeGL(int width, int height)
 {
     glViewport(0, 0, width, height);
+    if(height == 0) height = 1;
+
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    GLfloat x = (GLfloat)width / height;
-    glFrustum(-x, x, -1.0, 1.0, 4.0, 15.0);
+
+    GLfloat aspect = (GLfloat)width / (GLfloat)height;
+#if 0
+    glFrustum(-aspect, aspect, -1.0, 1.0, 4.0, 15.0);
+#else
+    if(width <= height)
+    	glOrtho( 0, 100.0, 			0, 100.0/aspect, 	1.0, -1.0 );
+    else
+    	glOrtho( 0, 100.0*aspect, 	0, 100.0, 			1.0, -1.0 );
+#endif
     glMatrixMode(GL_MODELVIEW);
+    updateGL();
 }
 
 void GLWidget::paintGL()
@@ -63,56 +85,59 @@ void GLWidget::paintGL()
 
 void GLWidget::draw()
 {
-    static const GLfloat coords[6][4][3] = {
-        { { +1.0, -1.0, +1.0 }, { +1.0, -1.0, -1.0 },
-          { +1.0, +1.0, -1.0 }, { +1.0, +1.0, +1.0 } },
-        { { -1.0, -1.0, -1.0 }, { -1.0, -1.0, +1.0 },
-          { -1.0, +1.0, +1.0 }, { -1.0, +1.0, -1.0 } },
-        { { +1.0, -1.0, -1.0 }, { -1.0, -1.0, -1.0 },
-          { -1.0, +1.0, -1.0 }, { +1.0, +1.0, -1.0 } },
-        { { -1.0, -1.0, +1.0 }, { +1.0, -1.0, +1.0 },
-          { +1.0, +1.0, +1.0 }, { -1.0, +1.0, +1.0 } },
-        { { -1.0, -1.0, -1.0 }, { +1.0, -1.0, -1.0 },
-          { +1.0, -1.0, +1.0 }, { -1.0, -1.0, +1.0 } },
-        { { -1.0, +1.0, +1.0 }, { +1.0, +1.0, +1.0 },
-          { +1.0, +1.0, -1.0 }, { -1.0, +1.0, -1.0 } }
-    };
-
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    glTranslatef(0.0, 0.0, -10.0);
+    glTranslatef(translationX, translationY, 0);
     glRotatef(rotationX, 1.0, 0.0, 0.0);
     glRotatef(rotationY, 0.0, 1.0, 0.0);
     glRotatef(rotationZ, 0.0, 0.0, 1.0);
 
-    for (int i = 0; i < 6; ++i) {
-      glLoadName(i);
-      glBegin(GL_QUADS);
-      qglColor(faceColors[i]);
-      for (int j = 0; j < 4; ++j) {
-        glVertex3f(coords[i][j][0], coords[i][j][1], coords[i][j][2]);
-      }
-      glEnd();
+
+    glFrontFace(GL_CW);
+    glColor3f(1.0, 1.0, 1.0);
+    glBegin(GL_QUADS);
+    	glVertex3f( 10,  10,  0.5);
+    	glVertex3f( 10,  20,  0.5);
+    	glVertex3f( 20,  20,  0.5);
+    	glVertex3f( 20,  10,  0.5);
+    glEnd();
+
+    glColor3f(1.0, 0, 0);
+    glPointSize(4.0);
+    glBegin(GL_POINTS);
+    for(uint i = 0; i < points.size(); i++)
+    {
+    	glVertex2f( points[i].x(), points[i].y());
     }
+    glEnd();
 }
 
 void GLWidget::mousePressEvent(QMouseEvent *event)
 {
+
     lastPos = event->pos();
+
+    GLdouble x, y;
+
+    getWorldCoordinates(event->x(), event->y(), x,y);
+
+    points.push_back(QPoint(x,y));
 }
 
 void GLWidget::mouseMoveEvent(QMouseEvent *event)
 {
-    GLfloat dx = (GLfloat)(event->x() - lastPos.x()) / width();
-    GLfloat dy = (GLfloat)(event->y() - lastPos.y()) / height();
+    GLfloat dx = (GLfloat)(event->x()  - lastPos.x()) / width();
+    GLfloat dy = (GLfloat)(lastPos.y() - event->y()) / height();
 
     if (event->buttons() & Qt::LeftButton) {
-        rotationX += 180 * dy;
-        rotationY += 180 * dx;
-        updateGL();
+        //rotationX += 180 * dy;
+        //rotationY += 180 * dx;
+    	updateGL();
     } else if (event->buttons() & Qt::RightButton) {
-       rotationX += 180 * dy;
-       rotationZ += 180 * dx;
+       //rotationX += 180 * dy;
+       //rotationZ += 180 * dx;
+    	translationX += dx*100;
+    	translationY += dy*100;
        updateGL();
     }
     lastPos = event->pos();
@@ -120,18 +145,49 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
 
 void GLWidget::mouseDoubleClickEvent(QMouseEvent *event)
 {
-    int face = faceAtPosition(event->pos());
+    int face = -1;//faceAtPosition(event->pos());
     if (face != -1)
     {
-        QColor color = QColorDialog::getColor(faceColors[face], this);
-        if (color.isValid())
-        {
-            faceColors[face] = color;
-            updateGL();
-        }
+        //QColor color = QColorDialog::getColor(faceColors[face], this);
+        //if (color.isValid())
+        //{
+        //    faceColors[face] = color;
+        //    updateGL();
+        //}
     }
 }
 
+
+//
+//	GLWidget::getWorldCoordinates()
+//
+void GLWidget::getWorldCoordinates( GLdouble viewport_x, GLdouble viewport_y, GLdouble &x, GLdouble &y )
+{
+	QTextStream out(stdout);
+	GLdouble z=0;
+	GLdouble model[16];
+	    glGetDoublev(GL_MODELVIEW_MATRIX, model);
+	GLdouble proj[16];
+	    glGetDoublev(GL_PROJECTION_MATRIX, proj);
+	GLint viewport[4];
+	    glGetIntegerv(GL_VIEWPORT, viewport);
+
+	    gluUnProject(viewport_x, viewport[3] - viewport_y, 0,  model, proj, viewport, &x,&y,&z);
+
+	    out << "\nData\n" << x << " " << y << " " << z;
+}
+
+
+//
+//	GLWidget::UpdateTimer()
+//
+void GLWidget::UpdateTimer()
+{
+	updateGL();
+}
+
+
+#if 0
 int GLWidget::faceAtPosition(const QPoint &pos)
 {
     const int MaxSize = 512;
@@ -159,3 +215,4 @@ int GLWidget::faceAtPosition(const QPoint &pos)
         return -1;
     return buffer[3];
 }
+#endif

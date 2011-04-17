@@ -3,9 +3,14 @@
 
 #include <QGLWidget>
 #include <QMouseEvent>
+#include <QTimer>
+#include <vector>
+
+typedef unsigned int uint;
 
 class GLWidget : public QGLWidget
 {
+	Q_OBJECT
 public:
     GLWidget(QWidget *parent = 0);
     virtual ~GLWidget();
@@ -20,16 +25,25 @@ protected:
      void mouseMoveEvent(QMouseEvent *event);
      void mouseDoubleClickEvent(QMouseEvent *event);
 
+     void getWorldCoordinates(GLdouble viewport_x, GLdouble viewport_y, GLdouble &x, GLdouble &y);
+
+     std::vector<QPoint> points;
+
 private:
      GLfloat rotationX;
      GLfloat rotationY;
      GLfloat rotationZ;
-     QColor faceColors[6];
+     GLfloat translationX;
+     GLfloat translationY;
+     //GLfloat translationZ;
+
      QPoint lastPos;
 
      void draw();
-     int faceAtPosition(const QPoint &pos);
 
+     // Timer things
+     QTimer *timer;
+     public slots : void UpdateTimer();
 };
 
 #endif /* GLWIDGET_H_ */
