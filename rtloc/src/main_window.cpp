@@ -21,7 +21,7 @@ MainWindow::MainWindow(Processor * proc_new, QWidget *parent)
 	run_act = run_menu->addAction("Start locating");
 
 	connect(run_act, SIGNAL(triggered()), SLOT(runLoc()));
-	connect(&tags_dialog, SIGNAL(update()), SLOT(getListTags()));
+	connect(&tags_dialog, SIGNAL(signalUpdate()), SLOT(getListTags()));
 
 	h_layout->addWidget(&glw);
 }

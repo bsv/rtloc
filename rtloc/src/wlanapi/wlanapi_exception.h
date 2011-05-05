@@ -23,6 +23,7 @@
 
 #include <stdexcept>
 #include <stdarg.h>
+#include <stdio.h>
 
 
 class wlanapi_exception : public std::runtime_error {

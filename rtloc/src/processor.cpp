@@ -1,5 +1,6 @@
 #include "inc/processor.h"
 #include <QMessageBox>
+#include <QDebug>
 
 Processor::Processor(QObject *parent)
 	: QObject(parent)
@@ -9,8 +10,8 @@ Processor::Processor(QObject *parent)
 
 Processor::~Processor()
 {
-        delete wi;
-        clearTagList();
+    delete wi;
+    clearTagList();
 }
 
 Man * Processor::getMan()
@@ -25,7 +26,6 @@ TagList * Processor::getActiveTags()
     clearTagList();
 
     try {
-
         wi->get_adapter_list();
         const AP_LIST &ap_list = wi->get_ap_list(NULL);
 
@@ -51,7 +51,7 @@ TagList * Processor::getActiveTags()
 
     } catch (std::exception &e) {
          QMessageBox msgBox;
-         msgBox.setText("Wi-Fi adapter doesn't found");
+         msgBox.setText(e.what());
          msgBox.exec();
     }
 

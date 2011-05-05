@@ -20,7 +20,7 @@ private:
     QStringList head_labels;
 
 signals:
-	void update();
+	void signalUpdate();
 
 public slots:
 	void updateList();

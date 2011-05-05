@@ -27,7 +27,7 @@ void ListTagsDialog::updateList()
 {
     if(isActiveWindow() == TRUE)
     {
-	    emit update();
+	    emit signalUpdate();
 	    tags_model.setHorizontalHeaderLabels(head_labels);
 	    list_view->resizeColumnsToContents();
     }

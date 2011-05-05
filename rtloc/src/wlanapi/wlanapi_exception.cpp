@@ -25,7 +25,7 @@ wlanapi_exception::wlanapi_exception(const char* message, ...) : std::runtime_er
     va_list arguments;
 
     va_start(arguments, message);
-    //vsnprintf(msg, sizeof(msg), message, arguments);
+    vsnprintf(msg, sizeof(msg), message, arguments);
     va_end(arguments);
 
 }

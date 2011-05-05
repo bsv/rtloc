@@ -14,8 +14,12 @@ GLWidget::GLWidget(QWidget *parent) : QGLWidget(parent)
 {
 	QTextStream out(stdout);
 		out << "\nGLWidget start working\n";
-    setFormat(QGLFormat(QGL::DoubleBuffer | QGL::DepthBuffer));
-    rotationX = 0;
+	// Вызывает ошибку при выходе
+	//http://bugreports.qt.nokia.com/browse/QTBUG-13260?page=com.atlassian.jira.plugin.system.issuetabpanels%3Aall-tabpanel
+//  setFormat(QGLFormat(QGL::DoubleBuffer | QGL::DepthBuffer));
+    //
+
+	rotationX = 0;
     rotationY = 0;
     rotationZ = 0;
 

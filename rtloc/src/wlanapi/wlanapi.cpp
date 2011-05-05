@@ -115,7 +115,7 @@ const ADAPTER_LIST& wlanapi::get_adapter_list() {
                     _ndis_get_adapter_list();
                 } catch (std::exception &e){
                     DEBUG_PRINT("NDIS failed: %s\n", e.what());
-                    throw wlanapi_exception("Unable to find a valid method for retrieving a list of network adapters");
+                    throw wlanapi_exception("Unable to find a valid method for retrieving a list of network adapters 1");
                 }
 
             }
@@ -130,7 +130,7 @@ const ADAPTER_LIST& wlanapi::get_adapter_list() {
                 _dbus_get_adapter_list();
             } catch (std::exception &e) {
                 DEBUG_PRINT("DBUS failed: %s\n", e.what());
-                throw wlanapi_exception("Unable to find a valid method for retrieving a list of network adapters");
+                throw wlanapi_exception("Unable to find a valid method for retrieving a list of network adapters 2");
             }
             #endif // DBUS
 
@@ -676,7 +676,7 @@ void wlanapi::_wlan_get_adapter_list() {
     DEBUG_ENTER(wlanapi)
 
     if (wlan_library == NULL) {
-        wlan_library = LoadLibrary((WCHAR *)"wlanapi");
+        wlan_library = LoadLibrary(TEXT("wlanapi"));
     }
 
     if (wlan_library == NULL) {
@@ -890,6 +890,8 @@ void wlanapi::_wlan_get_ap_list(ADAPTER_NAME *adapter_name) {
         }
 
         DEBUG_PRINT("  bss_list->dwNumberOfItems: %d\n", bss_list->dwNumberOfItems);
+
+        ap_list.clear();
 
         for (DWORD i = 0; i < bss_list->dwNumberOfItems; ++i) {
 
