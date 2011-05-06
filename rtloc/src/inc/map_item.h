@@ -2,6 +2,7 @@
 #define MAPITEM_H_
 
 #include <QString>
+#include "GLWidget.h"
 
 class MapItem
 {
@@ -15,7 +16,7 @@ public:
     int getX();
     int getY();
     void setXY(int x_new, int y_new);
-    virtual void draw();
+    virtual void draw(GLWidget * w);
 
 protected:
     QString name;

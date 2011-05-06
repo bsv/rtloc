@@ -1,5 +1,7 @@
 #include "inc/map_item.h"
 #include <QGLWidget>
+#include <QPainter>
+
 
 MapItem::MapItem()
 {
@@ -12,9 +14,17 @@ MapItem::MapItem(QString name_new, int x_new, int y_new)
     setName(name_new);
 }
 
-void MapItem::draw()
+void MapItem::draw(GLWidget * w)
 {
-	glVertex2f(x, y);
+	glBegin(GL_POINTS);
+		glVertex2f(x, y);
+	glEnd();
+
+	QFont font;
+	font.setPointSize(10);
+	w->renderText(x, y, name, font);
+
+
 }
 
 MapItem::~MapItem()

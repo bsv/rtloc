@@ -9,7 +9,7 @@
 #include <QColorDialog>
 #include <QTextStream>
 #include "inc/map_item_dialog.h"
-
+#include "inc/RFTag.h"
 
 GLWidget::GLWidget(QWidget *parent) : QGLWidget(parent)
 {
@@ -38,7 +38,7 @@ GLWidget::GLWidget(QWidget *parent) : QGLWidget(parent)
 GLWidget::~GLWidget()
 {
 	QTextStream out(stdout);
-			out << "\nGLWidget stop working\n";
+	out << "\nGLWidget stop working\n";
 	delete timer;
 	items.clear();
 }
@@ -48,13 +48,14 @@ QSize GLWidget::minimumSizeHint() const
      return QSize(100, 100);
  }
 
- QSize GLWidget::sizeHint() const
- {
+QSize GLWidget::sizeHint() const
+{
      return QSize(400, 400);
- }
+}
 
 void GLWidget::initializeGL()
 {
+
     qglClearColor(Qt::black);
     glShadeModel(GL_FLAT);
     glEnable(GL_DEPTH_TEST);
@@ -109,28 +110,37 @@ void GLWidget::draw()
 
     glColor3f(1.0, 0, 0);
     glPointSize(4.0);
-    glBegin(GL_POINTS);
+
+
     for(int i = 0; i < items.size(); i++)
     {
-    	items[i]->draw();
-    	//glVertex2f( items[i]->getX(), items[i]->getY());
+    	items[i]->draw(this);
     }
-    glEnd();
 }
 
 void GLWidget::mousePressEvent(QMouseEvent *event)
 {
 
-    lastPos = event->pos();
+	if(event->button() == Qt::LeftButton)
+	{
+		lastPos = event->pos();
 
-    GLdouble x, y;
+		GLdouble x, y;
 
-    getWorldCoordinates(event->x(), event->y(), x,y);
+		getWorldCoordinates(event->x(), event->y(), x,y);
 
-    MapItemDialog item_dlg(x, y);
-    item_dlg.exec();
+		MapItemDialog item_dlg(x, y);
+		item_dlg.exec();
 
-    items.push_back(new MapItem(item_dlg.getName(), item_dlg.getX(), item_dlg.getY()));
+		if(item_dlg.result() == QDialog::Accepted)
+		{
+			items.push_back(new MapItem(item_dlg.getName(), item_dlg.getX(), item_dlg.getY()));
+
+			QTextStream out(stdout);
+			out << "w = " << width() << " h = " << height();
+		}
+
+	}
 }
 
 void GLWidget::mouseMoveEvent(QMouseEvent *event)

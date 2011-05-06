@@ -4,7 +4,8 @@
 #include <QGLWidget>
 #include <QMouseEvent>
 #include <QTimer>
-#include "RFTag.h"
+
+class MapItem;
 
 typedef unsigned int uint;
 
