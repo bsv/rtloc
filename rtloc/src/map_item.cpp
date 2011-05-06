@@ -1,4 +1,5 @@
 #include "inc/map_item.h"
+#include <QGLWidget>
 
 MapItem::MapItem()
 {
@@ -9,6 +10,11 @@ MapItem::MapItem(QString name_new, int x_new, int y_new)
 {
     setXY(x_new, y_new);
     setName(name_new);
+}
+
+void MapItem::draw()
+{
+	glVertex2f(x, y);
 }
 
 MapItem::~MapItem()

@@ -8,6 +8,7 @@
 #include "inc/GLWidget.h"
 #include <QColorDialog>
 #include <QTextStream>
+#include "inc/map_item_dialog.h"
 
 
 GLWidget::GLWidget(QWidget *parent) : QGLWidget(parent)
@@ -23,13 +24,13 @@ GLWidget::GLWidget(QWidget *parent) : QGLWidget(parent)
     rotationY = 0;
     rotationZ = 0;
 
-    points.clear();
+    items.clear();
 
     translationX = 0;
     translationY = 0;
 
     timer = new QTimer(this);
-    connect(timer, SIGNAL(timeout()), this, SLOT(UpdateTimer()));
+    connect(timer, SIGNAL(timeout()), this, SLOT(updateGL()));
     timer->start(100);
     //faceColors[0] = Qt::red;
 }
@@ -39,7 +40,7 @@ GLWidget::~GLWidget()
 	QTextStream out(stdout);
 			out << "\nGLWidget stop working\n";
 	delete timer;
-	points.clear();
+	items.clear();
 }
 
 QSize GLWidget::minimumSizeHint() const
@@ -109,9 +110,10 @@ void GLWidget::draw()
     glColor3f(1.0, 0, 0);
     glPointSize(4.0);
     glBegin(GL_POINTS);
-    for(uint i = 0; i < points.size(); i++)
+    for(int i = 0; i < items.size(); i++)
     {
-    	glVertex2f( points[i].x(), points[i].y());
+    	items[i]->draw();
+    	//glVertex2f( items[i]->getX(), items[i]->getY());
     }
     glEnd();
 }
@@ -125,7 +127,10 @@ void GLWidget::mousePressEvent(QMouseEvent *event)
 
     getWorldCoordinates(event->x(), event->y(), x,y);
 
-    points.push_back(QPoint(x,y));
+    MapItemDialog item_dlg(x, y);
+    item_dlg.exec();
+
+    items.push_back(new MapItem(item_dlg.getName(), item_dlg.getX(), item_dlg.getY()));
 }
 
 void GLWidget::mouseMoveEvent(QMouseEvent *event)
@@ -180,16 +185,6 @@ void GLWidget::getWorldCoordinates( GLdouble viewport_x, GLdouble viewport_y, GL
 
 	    out << "\nData\n" << x << " " << y << " " << z;
 }
-
-
-//
-//	GLWidget::UpdateTimer()
-//
-void GLWidget::UpdateTimer()
-{
-	updateGL();
-}
-
 
 #if 0
 int GLWidget::faceAtPosition(const QPoint &pos)

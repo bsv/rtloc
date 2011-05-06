@@ -65,7 +65,6 @@ void MainWindow::runLoc()
     }
 }
 
-
 void MainWindow::createFloor()
 {
 }

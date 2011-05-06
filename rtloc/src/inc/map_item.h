@@ -15,6 +15,7 @@ public:
     int getX();
     int getY();
     void setXY(int x_new, int y_new);
+    virtual void draw();
 
 protected:
     QString name;

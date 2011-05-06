@@ -4,7 +4,7 @@
 #include <QGLWidget>
 #include <QMouseEvent>
 #include <QTimer>
-#include <vector>
+#include "RFTag.h"
 
 typedef unsigned int uint;
 
@@ -27,7 +27,7 @@ protected:
 
      void getWorldCoordinates(GLdouble viewport_x, GLdouble viewport_y, GLdouble &x, GLdouble &y);
 
-     std::vector<QPoint> points;
+     QList<MapItem *> items;
 
 private:
      GLfloat rotationX;
@@ -43,7 +43,6 @@ private:
 
      // Timer things
      QTimer *timer;
-     public slots : void UpdateTimer();
 };
 
 #endif /* GLWIDGET_H_ */
