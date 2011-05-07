@@ -22,6 +22,8 @@ private:
     // ������, ���������� �� ���������� ���������
     Processor * proc;
 
+    TagList all_tags;
+
     // ������ ��� ����������� �����
     GLWidget glw;
 
@@ -30,6 +32,9 @@ private:
     QMenu * run_menu;
 
     QAction * run_act;
+
+    QTimer time_upd_list;
+    QTimer timer_upd_pos;
 
 public slots:
 
@@ -47,7 +52,9 @@ public slots:
     void openMap();
     void mapSettings();
 
-    void getListTags();
+    void updateMap();
+    void addRFTag(RFTag * tag);
+    void updateTagList();
 };
 
 #endif // MAIN_WINDOW_H

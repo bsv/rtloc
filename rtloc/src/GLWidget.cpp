@@ -20,27 +20,39 @@ GLWidget::GLWidget(QWidget *parent) : QGLWidget(parent)
 //  setFormat(QGLFormat(QGL::DoubleBuffer | QGL::DepthBuffer));
     //
 
+	draw_acc = true;
+
 	rotationX = 0;
     rotationY = 0;
     rotationZ = 0;
 
-    items.clear();
-
     translationX = 0;
     translationY = 0;
 
-    timer = new QTimer(this);
-    connect(timer, SIGNAL(timeout()), this, SLOT(updateGL()));
-    timer->start(100);
+    connect(&timer, SIGNAL(timeout()), this, SLOT(updateGL()));
+    timer.start(100);
     //faceColors[0] = Qt::red;
+}
+
+void GLWidget::setDrawAcc(bool acc)
+{
+    draw_acc = acc;
+}
+
+void GLWidget::setTagList(TagList * all_tags)
+{
+    tags = all_tags;
+}
+
+void GLWidget::setMan(Man * man)
+{
+    man_obj = man;
 }
 
 GLWidget::~GLWidget()
 {
 	QTextStream out(stdout);
 	out << "\nGLWidget stop working\n";
-	delete timer;
-	items.clear();
 }
 
 QSize GLWidget::minimumSizeHint() const
@@ -55,7 +67,6 @@ QSize GLWidget::sizeHint() const
 
 void GLWidget::initializeGL()
 {
-
     qglClearColor(Qt::black);
     glShadeModel(GL_FLAT);
     glEnable(GL_DEPTH_TEST);
@@ -108,19 +119,14 @@ void GLWidget::draw()
     	glVertex3f( 20,  10,  0.5);
     glEnd();
 
-    glColor3f(1.0, 0, 0);
-    glPointSize(4.0);
-
-
-    for(int i = 0; i < items.size(); i++)
+    for(int i = 0; i < tags->size(); i++)
     {
-    	items[i]->draw(this);
+    	(*tags)[i]->draw(this);
     }
 }
 
 void GLWidget::mousePressEvent(QMouseEvent *event)
 {
-
 	if(event->button() == Qt::LeftButton)
 	{
 		lastPos = event->pos();
@@ -134,12 +140,8 @@ void GLWidget::mousePressEvent(QMouseEvent *event)
 
 		if(item_dlg.result() == QDialog::Accepted)
 		{
-			items.push_back(new MapItem(item_dlg.getName(), item_dlg.getX(), item_dlg.getY()));
-
-			QTextStream out(stdout);
-			out << "w = " << width() << " h = " << height();
+			emit addRFTag(new RFTag(item_dlg.getName(), item_dlg.getX(), item_dlg.getY()));
 		}
-
 	}
 }
 

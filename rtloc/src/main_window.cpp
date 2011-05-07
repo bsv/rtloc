@@ -21,9 +21,37 @@ MainWindow::MainWindow(Processor * proc_new, QWidget *parent)
 	run_act = run_menu->addAction("Start locating");
 
 	connect(run_act, SIGNAL(triggered()), SLOT(runLoc()));
-	connect(&tags_dialog, SIGNAL(signalUpdate()), SLOT(getListTags()));
+	connect(&time_upd_list, SIGNAL(timeout()), SLOT(updateTagList()));
+	connect(&tags_dialog, SIGNAL(finished(int)), &time_upd_list, SLOT(stop()));
+	connect(&glw, SIGNAL(addRFTag(RFTag *)), SLOT(addRFTag(RFTag *)));
+	connect(&timer_upd_pos, SIGNAL(timeout()), SLOT(updateMap()));
+
+	timer_upd_pos.start(1000);
+
+	glw.setTagList(&all_tags);
+	glw.setMan(proc->getMan());
 
 	h_layout->addWidget(&glw);
+}
+
+void MainWindow::updateMap()
+{
+    glw.setDrawAcc(false);
+
+    proc->calcPos(&all_tags);
+
+    glw.setDrawAcc(true);
+}
+
+void MainWindow::updateTagList()
+{
+   TagList * list = proc->getActiveTags();
+   tags_dialog.updateList(list);
+}
+
+void MainWindow::addRFTag(RFTag * tag)
+{
+    all_tags.push_back(tag);
 }
 
 
@@ -31,7 +59,7 @@ MainWindow::~MainWindow()
 {
 }
 
-void MainWindow::getListTags()
+/*void MainWindow::getListTags()
 {
 	QStandardItemModel * model = tags_dialog.getModel();
 	QList<QStandardItem * > row_items;
@@ -52,7 +80,7 @@ void MainWindow::getListTags()
 
 	    model->appendRow(row_items);
 	}
-}
+}*/
 
 void MainWindow::runLoc()
 {
@@ -75,6 +103,7 @@ void MainWindow::viewListFloors()
 
 void MainWindow::viewListTags()
 {
+    time_upd_list.start(1000);
 	tags_dialog.show();
 }
 

@@ -3,6 +3,7 @@
 
 #include <QList>
 #include <QObject>
+#include <QTimer>
 #include "RFTag.h"
 #include  "../wlanapi/wlanapi.h"
 
@@ -18,6 +19,7 @@ public:
 
     TagList * getActiveTags();
     Man * getMan();
+    void calcPos(TagList * all_tags);
 
 private:
     TagList rftags;

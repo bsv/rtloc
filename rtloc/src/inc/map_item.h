@@ -2,7 +2,8 @@
 #define MAPITEM_H_
 
 #include <QString>
-#include "GLWidget.h"
+
+class GLWidget;
 
 class MapItem
 {

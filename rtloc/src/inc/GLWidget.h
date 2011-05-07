@@ -4,6 +4,7 @@
 #include <QGLWidget>
 #include <QMouseEvent>
 #include <QTimer>
+#include "processor.h"
 
 class MapItem;
 
@@ -18,6 +19,11 @@ public:
 
     QSize minimumSizeHint() const;
     QSize sizeHint() const;
+
+    void setTagList(TagList * all_tags);
+    void setMan(Man * man);
+    void setDrawAcc(bool acc);
+
 protected:
      void initializeGL();
      void paintGL();
@@ -27,9 +33,6 @@ protected:
      void mouseDoubleClickEvent(QMouseEvent *event);
 
      void getWorldCoordinates(GLdouble viewport_x, GLdouble viewport_y, GLdouble &x, GLdouble &y);
-
-     QList<MapItem *> items;
-
 private:
      GLfloat rotationX;
      GLfloat rotationY;
@@ -38,12 +41,24 @@ private:
      GLfloat translationY;
      //GLfloat translationZ;
 
+     Man * man_obj;
+     TagList * tags;
+
      QPoint lastPos;
+
+     // Флаг разрешения вывода объектов.
+     // Нужен, чтоб предотвратить гонку за
+     // tags (изменяется в main_window,
+     // выводится в draw)
+     bool draw_acc;
 
      void draw();
 
      // Timer things
-     QTimer *timer;
+     QTimer timer;
+
+signals:
+    void addRFTag(RFTag * tag);
 };
 
 #endif /* GLWIDGET_H_ */

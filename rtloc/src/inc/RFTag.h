@@ -15,6 +15,7 @@ public:
     QString getId();
     void setRSSI(int rssi_new);
     int getRSSI();
+    virtual void draw(GLWidget * w);
 
 private:
     QString id;

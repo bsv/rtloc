@@ -4,6 +4,8 @@
 #include <QtGui/QDialog>
 #include <QStandardItemModel>
 #include "../ui_list_tags_dialog.h"
+#include "RFTag.h"
+#include "processor.h"
 
 class ListTagsDialog : public QDialog, public Ui::ListTagsDialogClass
 {
@@ -14,16 +16,11 @@ public:
     ~ListTagsDialog();
 
     QStandardItemModel * getModel();
+    void updateList(TagList * tag_list);
 
 private:
     QStandardItemModel tags_model;
     QStringList head_labels;
-
-signals:
-	void signalUpdate();
-
-public slots:
-	void updateList();
 };
 
 #endif // VIEW_LIST_TAGS_H
