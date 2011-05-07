@@ -15,8 +15,8 @@ MapItem::MapItem(QString name_new, int x_new, int y_new)
 
 void MapItem::draw(GLWidget * w)
 {
-    glColor3f(1.0, 0, 0);
-    glPointSize(4.0);
+    glColor3f(1, 0, 0);
+    glPointSize(5.0);
 
 	glBegin(GL_POINTS);
 		glVertex2f(x, y);

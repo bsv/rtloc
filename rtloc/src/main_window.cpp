@@ -59,29 +59,6 @@ MainWindow::~MainWindow()
 {
 }
 
-/*void MainWindow::getListTags()
-{
-	QStandardItemModel * model = tags_dialog.getModel();
-	QList<QStandardItem * > row_items;
-	TagList * rftags = proc->getActiveTags();
-
-	model->clear();
-
-	for (TagList::iterator it = rftags->begin(); it < rftags->end(); ++it)
-	{
-	    row_items.clear();
-
-	    QString mac;
-
-	    row_items.append(new QStandardItem((*it)->getName()));
-	    row_items.append(new QStandardItem((*it)->getId()));
-	    row_items.append(new QStandardItem(QString().setNum((*it)->getRSSI())));
-	    row_items.append(new QStandardItem("0"));
-
-	    model->appendRow(row_items);
-	}
-}*/
-
 void MainWindow::runLoc()
 {
     if(run_act->text() == "Start locating")

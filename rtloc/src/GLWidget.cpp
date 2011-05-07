@@ -123,6 +123,8 @@ void GLWidget::draw()
     {
     	(*tags)[i]->draw(this);
     }
+
+    man_obj->draw(this);
 }
 
 void GLWidget::mousePressEvent(QMouseEvent *event)
@@ -134,6 +136,8 @@ void GLWidget::mousePressEvent(QMouseEvent *event)
 		GLdouble x, y;
 
 		getWorldCoordinates(event->x(), event->y(), x,y);
+
+		QTextStream out(stdout);
 
 		MapItemDialog item_dlg(x, y);
 		item_dlg.exec();
