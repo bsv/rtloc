@@ -1,11 +1,11 @@
-#include "inc/main_window.h"
+﻿#include "inc/main_window.h"
 
 #include <QtGui>
 #include <QApplication>
 
 int main(int argc, char *argv[])
 {
-	QTextCodec *codec = QTextCodec::codecForName("Windows-1251");
+	QTextCodec *codec = QTextCodec::codecForName("UTF-8");
 	QTextCodec::setCodecForCStrings(codec);
 
     QApplication a(argc, argv);

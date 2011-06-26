@@ -1,7 +1,7 @@
 #include "inc/processor.h"
 #include <QMessageBox>
 #include <QDebug>
-#include <math.h>
+#include <qmath.h>
 
 Processor::Processor(QObject *parent)
 	: QObject(parent)
@@ -10,19 +10,148 @@ Processor::Processor(QObject *parent)
 }
 
 /**
- * ��������� ��������� �������
- * ��������� �������� �������� �������
- * ��� �������� ����� � all_tags
+ * Вычисляем положение объекта
+ * Обнавляем значения мощности сигнала
+ * для активных точек в all_tags
  */
 void Processor::calcPos(TagList * all_tags)
 {
-    RFTag * item;
+    // по этому списку будем производить расчет
+    TagList * calc_tags = new TagList();
+
+    // Список точек пересечения окружностей
+    // (окружность - область действия антенны)
+    PointList * points = new PointList();
+
+    // Получаем данные об активных метках и обновляем rftags
     getActiveTags();
+
+    // Обновляем информацию об активных точках,
+    // присутствующих на карте
+    updateRfTags(all_tags, calc_tags);
+
+    // Находим общие точки пересечения зон действия активных меток
+    getAllIntersec(calc_tags, points);
+
+    // Выводим количество найденных точек
+    //QTextStream out(stdout);
+    //out << "NPOints = " << points->size() << endl;
+
+    // Расчет положения по активным точкам
+    int x = 0, y = 0;
+    int count_points = points->size();
+
+    for(int i = 0; i < count_points; i++)
+    {
+        x += (*points)[i]->x();
+        y += (*points)[i]->y();
+    }
+
+    if(count_points !=0)
+    {
+        man.setXY(x/count_points, y/count_points);
+    }
+
+    // Удаляем созданные объекты
+    delete calc_tags;
+    deleteList(points);
+}
+
+void Processor::getAllIntersec(TagList * calc_tags, PointList * points)
+{
+    RFTag * tag1 = NULL;
+    RFTag * tag2 = NULL;
+    PointList::iterator point;
+    bool found = false;
+    QTextStream out(stdout);
+
+    points->clear();
+
+    for(int tag_i = 0; tag_i < calc_tags->size(); tag_i++)
+    {
+        tag1 = (*calc_tags)[tag_i];
+
+        for(int tag_j = tag_i+1; tag_j < calc_tags->size(); tag_j++)
+        {
+            tag2 = (*calc_tags)[tag_j];
+
+            // Пересчет в метры радиусов действия точек доступа
+            float r1 = tag1->getRSSI();
+            float r2 = tag2->getRadius();
+
+            QList<QPoint> p = calcIntersec(tag1->getX(),
+                    tag1->getY(), r1,
+                    tag2->getX(),
+                    tag2->getY(), r2);
+
+            // Добавляем новые точки в список
+            for(int i = 0; i < p.size(); i++)
+            {
+                point = points->begin();
+                found = false;
+
+                while(point != points->end())
+                {
+                    if(**point == p[i])
+                    {
+                        found = true;
+                        break;
+                    }
+                    ++point;
+                }
+                if(!found)
+                {
+                    points->append(new QPoint(p[i]));
+                }
+            }
+        }
+    }
+
+    // Оставляем в points только общие точки для всех окружностей
+    TagList::iterator tag = calc_tags->begin();
+
+    point = points->begin();
+
+    while(point != points->end())
+    {
+        tag = calc_tags->begin();
+        found = false;
+
+        while(tag != calc_tags->end())
+        {
+            // квадрат радиуса
+            int r_sqr = qPow((*point)->x() - (*tag)->getX(), 2) +
+                    qPow((*point)->y() - (*tag)->getY(), 2);
+
+            // радиус действия точки доступа
+            int r = (*tag)->getRadius();
+
+            // Если точка находится за пределами зоны действия
+            // хоть однй точки доступа, то удаляем её
+            if((int)(qSqrt(r_sqr)) > r)
+            {
+                found = true;
+                break;
+            }
+            ++tag;
+        }
+
+        if(found)
+        {
+            delete *point;
+            point = points->erase(point);
+        } else
+        {
+            ++point;
+        }
+    }
+}
+
+void Processor::updateRfTags(TagList * all_tags, TagList * calc_tags)
+{
+    RFTag * item;
     bool find;
 
-    TagList calc_tags;
-
-    // ���������� ���������� � �������� ������
     for(int i = 0; i < all_tags->size(); i ++)
     {
         item = (*all_tags)[i];
@@ -33,7 +162,7 @@ void Processor::calcPos(TagList * all_tags)
             if(item->getName() == rftags[j]->getName())
             {
                 item->setRSSI(rftags[j]->getRSSI());
-                calc_tags.append(item);
+                calc_tags->append(item);
                 find = true;
                 break;
             }
@@ -43,37 +172,10 @@ void Processor::calcPos(TagList * all_tags)
             item->setRSSI(0);
         }
     }
-
-    // ������ ��������� �� �������� ������
-    // (���� ������ �� ���� ������)
-    if(calc_tags.size() > 3)
-    {
-
-    } else if(calc_tags.size() == 2)
-    {
-        float x1 = calc_tags[0]->getX();
-        float y1 = calc_tags[0]->getY();
-        float r1 = calc_tags[0]->getRSSI();
-
-        float x2 = calc_tags[1]->getX();
-        float y2 = calc_tags[1]->getY();
-        float r2 = calc_tags[1]->getRSSI();
-
-        QList<QPoint> p = calcIntersec(x1, y1, r1, x2, y2, r2);
-
-        if(p.size() == 2)
-        {
-            man.setXY((p[0].x() + p[1].x())/2,
-                    (p[0].y() + p[1].y())/2);
-        } else if(p.size() == 1)
-        {
-            man.setXY(p[0].x(), p[0].y());
-        }
-    }
 }
 
 
-// ������ ������ ������� ������������ (����������� ������)
+// Расчет центра тяжести треугольника (пересечение медиан)
 QPoint Processor::calcCentroid(float x1, float y1, float x2, float y2, float x3, float y3)
 {
     float xa = (x2 + x3)/2;
@@ -91,7 +193,7 @@ QPoint Processor::calcCentroid(float x1, float y1, float x2, float y2, float x3,
     return QPoint(d/c, a*(d/c) - b);
 }
 
-// ������ ����� ����������� �����������
+// Расчет точек пересечения окружностей
 QList<QPoint> Processor::calcIntersec(float x1, float y1, float r1, float x2, float y2, float r2)
 {
 
@@ -167,7 +269,7 @@ TagList * Processor::getActiveTags()
                 tag->setName(it->name);
                 tag->setId(mac);
 
-                // ������������ ��������� RSSI � �����
+                // Одновременно переводим RSSI в метры
                 tag->setRSSI((-it->rssi)/100.0 * SCALE_RSSI);
 
                 rftags.append(tag);
@@ -180,6 +282,13 @@ TagList * Processor::getActiveTags()
     }
 
     return &rftags;
+}
+
+void Processor::deleteList(PointList * list)
+{
+    while (!list->isEmpty())
+             delete list->takeFirst();
+    delete list;
 }
 
 void Processor::clearTagList()

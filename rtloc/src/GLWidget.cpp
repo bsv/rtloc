@@ -2,7 +2,7 @@
  * GLWidget.cpp
  *
  *  Created on: 25.03.2011
- *      Author: Администратор
+ *      Author: РђРґРјРёРЅРёСЃС‚СЂР°С‚РѕСЂ
  */
 
 #include "inc/GLWidget.h"
@@ -15,7 +15,7 @@ GLWidget::GLWidget(QWidget *parent) : QGLWidget(parent)
 {
 	QTextStream out(stdout);
 		out << "\nGLWidget start working\n";
-	// Вызывает ошибку при выходе
+	// Р’С‹Р·С‹РІР°РµС‚ РѕС€РёР±РєСѓ РїСЂРё РІС‹С…РѕРґРµ
 	//http://bugreports.qt.nokia.com/browse/QTBUG-13260?page=com.atlassian.jira.plugin.system.issuetabpanels%3Aall-tabpanel
 //  setFormat(QGLFormat(QGL::DoubleBuffer | QGL::DepthBuffer));
     //
@@ -57,12 +57,12 @@ GLWidget::~GLWidget()
 
 QSize GLWidget::minimumSizeHint() const
  {
-     return QSize(100, 100);
+     return QSize(200, 200);
  }
 
 QSize GLWidget::sizeHint() const
 {
-     return QSize(400, 400);
+     return QSize(1000, 1000);
 }
 
 void GLWidget::initializeGL()
@@ -151,8 +151,8 @@ void GLWidget::mousePressEvent(QMouseEvent *event)
 
 void GLWidget::mouseMoveEvent(QMouseEvent *event)
 {
-    GLfloat dx = (GLfloat)(event->x()  - lastPos.x()) / width();
-    GLfloat dy = (GLfloat)(lastPos.y() - event->y()) / height();
+    //GLfloat dx = (GLfloat)(event->x()  - lastPos.x()) / width();
+    //GLfloat dy = (GLfloat)(lastPos.y() - event->y()) / height();
 
     if (event->buttons() & Qt::LeftButton) {
         //rotationX += 180 * dy;
@@ -161,8 +161,8 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
     } else if (event->buttons() & Qt::RightButton) {
        //rotationX += 180 * dy;
        //rotationZ += 180 * dx;
-    	translationX += dx*100;
-    	translationY += dy*100;
+    	//translationX += dx*100;
+    	//translationY += dy*100;
        updateGL();
     }
     lastPos = event->pos();

@@ -1,4 +1,4 @@
-#include "inc/list_tags_dialog.h"
+﻿#include "inc/list_tags_dialog.h"
 #include "QTimer"
 
 ListTagsDialog::ListTagsDialog(QWidget *parent)

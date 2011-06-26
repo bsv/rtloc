@@ -15,6 +15,16 @@ public:
     QString getId();
     void setRSSI(int rssi_new);
     int getRSSI();
+
+    /**
+     * Функция пересчитывает значение RSSI
+     * в метры.
+     *
+     * @return - возвращает радиус действия точки доступа
+     * в метрах.
+     */
+    int getRadius();
+
     virtual void draw(GLWidget * w);
 
 private:

@@ -16,7 +16,7 @@ MapItemDialog::MapItemDialog(QWidget * parent)
 MapItemDialog::MapItemDialog(float x, float y, QWidget *parent)
 {
     setupUi(this);
-	name_edit->setText("Ââåäèòå èìÿ");
+	name_edit->setText("Ð’Ð²ÐµÐ´Ð¸Ñ‚Ðµ Ð¸Ð¼Ñ");
 	x_spin->setValue((int)x);
 	y_spin->setValue((int)y);
 }

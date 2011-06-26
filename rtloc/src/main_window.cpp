@@ -1,4 +1,4 @@
-#include "inc/main_window.h"
+﻿#include "inc/main_window.h"
 #include <QHBoxLayout>
 
 MainWindow::MainWindow(Processor * proc_new, QWidget *parent)
